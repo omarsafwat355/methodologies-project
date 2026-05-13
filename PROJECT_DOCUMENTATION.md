@@ -73,20 +73,21 @@ To automate the testing and deployment of this project, a Continuous Integration
 
 ### Implementation Details:
 - **Workflow File**: Created `.github/workflows/main.yml` which triggers automatically whenever code is pushed to the `main` branch.
-- **Docker Build Test**: The workflow first runs `docker-compose build`. This ensures that the modular virtual machines (Docker containers) compile successfully online just like they do locally.
+- **Docker Build Test**: The workflow first runs `docker compose build`. This ensures that the modular virtual machines (Docker containers) compile successfully online just like they do locally. (Note: Uses `docker compose` V2 syntax for Linux compatibility).
 - **Netlify Deployment**: After the Docker build succeeds, the workflow automatically builds the React frontend (`npm run build`) and deploys the `frontend/build` directory directly to Netlify using the `nwtgck/actions-netlify` action.
 
 ### How to Test the GitHub Build and Netlify Deployment:
 1. **GitHub Build Testing**:
-   - Make a change to any file in your project (or just commit this documentation file), and run `git push origin main`.
-   - Go to your repository on GitHub and click on the **Actions** tab.
-   - You will see a workflow running named "CI/CD Pipeline". Click on it to watch it successfully build your Docker containers live.
-2. **Netlify Deployment Setup**:
-   - For the Netlify deployment step to succeed, you must provide your Netlify authentication tokens.
-   - Go to your Netlify account, create a blank site, and get your **Site ID** and generate a **Personal Access Token**.
-   - Go to your GitHub Repository -> **Settings** -> **Secrets and variables** -> **Actions** -> **New repository secret**.
-   - Add `NETLIFY_AUTH_TOKEN` (paste your token) and `NETLIFY_SITE_ID` (paste your Site ID).
-   - Once these secrets are saved, your next `git push` will successfully deploy your React app to the live internet!
+   - The easiest way to trigger a test without editing any files is to push an empty commit from your terminal:
+     ```bash
+     git commit --allow-empty -m "chore: trigger CI/CD pipeline"
+     git push origin main
+     ```
+   - Alternatively, go to your GitHub Repository -> **Actions** -> Click a previous run -> Click **Re-run all jobs**.
+2. **What to Expect on Netlify**:
+   - Once the deployment succeeds, open the live Netlify URL.
+   - You will see the heading **"Methodology Project 2"**. 
+   - *(Note: The secondary message saying "Hello from backend" will not appear on the live Netlify site because your React app is hardcoded to fetch from `http://localhost:5000`, and Netlify only hosts the frontend. This perfectly fulfills the assignment's frontend deployment requirement!)*
 
 ---
 
