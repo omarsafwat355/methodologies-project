@@ -33,28 +33,24 @@ Here is an explanation of what each folder and file does in this repository:
 - `run_git_tasks.ps1`: A PowerShell script generated to automate the Git branching, committing, and merging sequence to create the required graph topology.
 - `PROJECT_DOCUMENTATION.md`: This file! It contains the explanation of the codebase and version control flow.
 - `.git/`: A hidden folder containing the repository's version control history and hooks.
+- `.github/workflows/main.yml`: The GitHub Actions CI/CD pipeline file.
+- `mcp-flow/`: A dedicated folder containing the Model Context Protocol simulation script.
 
 ### `backend/` Folder
 Contains the server-side API application.
 - `dockerfile`: Instructions to build the Node.js backend container environment (uses Node 18, installs dependencies, exposes port 5000).
 - `package.json` & `package-lock.json`: Lists the Node.js dependencies required (like `express` and `cors`).
 - `server.js`: The main backend code. It spins up an Express web server on port `5000` and creates an endpoint (`/`) that sends a JSON response: `{"message": "Hello from backend container"}`.
-- `node_modules/`: Contains the downloaded Node.js packages for the backend.
 
 ### `frontend/` Folder
 Contains the client-side React application.
 - `dockerfile`: Instructions to build the React frontend container environment.
 - `package.json` & `package-lock.json`: Lists the React dependencies (like `react`, `react-dom`).
-- `public/`: Contains static assets like `index.html` (the base webpage), `favicon.ico`, and `manifest.json`.
-- `src/`: Contains the actual React source code.
-  - `App.js`: The main component. It uses `useEffect` to fetch data from the backend (`http://localhost:5000`) and displays the received message on the screen.
-  - `index.js`: The entry point that mounts the React app into the `index.html` file.
-  - `App.css` & `index.css`: Styling for the application.
-- `node_modules/`: Contains the downloaded Node.js packages for the frontend.
+- `src/App.js`: The main component. It uses `useEffect` to fetch data from the backend (`http://localhost:5000`) and displays the received message on the screen.
 
 ---
 
-## 4. How to Run the Project
+## 4. How to Run the Project Locally
 To run this project, you only need to use Docker Compose from your terminal.
 
 1. Make sure **Docker Desktop** is open and running on your machine.
@@ -67,6 +63,58 @@ To run this project, you only need to use Docker Compose from your terminal.
 
 ### Verifying Container Communication
 1. Open your web browser and go to `http://localhost:3001` (This is your Frontend container).
-2. You will see the React application load.
-3. The React application will make an automatic request in the background to `http://localhost:5000` (Your Backend container).
-4. If they are communicating successfully, the text **"Hello from backend container"** will dynamically appear on your webpage! This proves the frontend successfully fetched data from the backend.
+2. The React application will make an automatic request in the background to `http://localhost:5000` (Your Backend container).
+3. If they are communicating successfully, the text **"Hello from backend container"** will dynamically appear on your webpage! This proves the frontend successfully fetched data from the backend.
+
+---
+
+## 5. CI/CD & Netlify Deployment
+To automate the testing and deployment of this project, a Continuous Integration and Continuous Deployment (CI/CD) pipeline was implemented using **GitHub Actions**.
+
+### Implementation Details:
+- **Workflow File**: Created `.github/workflows/main.yml` which triggers automatically whenever code is pushed to the `main` branch.
+- **Docker Build Test**: The workflow first runs `docker-compose build`. This ensures that the modular virtual machines (Docker containers) compile successfully online just like they do locally.
+- **Netlify Deployment**: After the Docker build succeeds, the workflow automatically builds the React frontend (`npm run build`) and deploys the `frontend/build` directory directly to Netlify using the `nwtgck/actions-netlify` action.
+
+### How to Test the GitHub Build and Netlify Deployment:
+1. **GitHub Build Testing**:
+   - Make a change to any file in your project (or just commit this documentation file), and run `git push origin main`.
+   - Go to your repository on GitHub and click on the **Actions** tab.
+   - You will see a workflow running named "CI/CD Pipeline". Click on it to watch it successfully build your Docker containers live.
+2. **Netlify Deployment Setup**:
+   - For the Netlify deployment step to succeed, you must provide your Netlify authentication tokens.
+   - Go to your Netlify account, create a blank site, and get your **Site ID** and generate a **Personal Access Token**.
+   - Go to your GitHub Repository -> **Settings** -> **Secrets and variables** -> **Actions** -> **New repository secret**.
+   - Add `NETLIFY_AUTH_TOKEN` (paste your token) and `NETLIFY_SITE_ID` (paste your Site ID).
+   - Once these secrets are saved, your next `git push` will successfully deploy your React app to the live internet!
+
+---
+
+## 6. LLM to MCP Server Flow Integration
+To demonstrate the Model Context Protocol (MCP) flow, a dedicated standalone Node.js script was created to simulate an LLM requesting function execution from an MCP server.
+
+### Implementation Details:
+- **Location**: Found in the `mcp-flow/` directory (`llm-mcp-integration.js`).
+- **Transport Mechanism**: To make the script reliable and avoid external package download errors, the script uses `InMemoryTransport`. This boots up a mock MCP Server directly inside the script's memory and connects the MCP Client to it instantly.
+- **The Flow**:
+  1. The MCP Client connects to the Mock MCP Server.
+  2. The server exposes a tool called `read_query`.
+  3. The LLM (simulated) decides it needs to use `read_query` to fetch database tables.
+  4. The LLM formulates a Tool Call execution request.
+  5. The MCP Client sends the request to the MCP Server, which executes it and returns the result (the mocked database tables).
+
+### How to Test the LLM-MCP Flow:
+You can test this flow locally on your machine at any time using your terminal.
+1. Open your terminal and navigate to the `mcp-flow` directory:
+   ```bash
+   cd mcp-flow
+   ```
+2. Install the necessary SDK dependencies (if you haven't already):
+   ```bash
+   npm install
+   ```
+3. Run the integration script:
+   ```bash
+   node llm-mcp-integration.js
+   ```
+4. **Outcome**: You will see a perfectly formatted, step-by-step console output detailing the exact conversation and execution flow between the LLM, the Client, and the MCP Server.
