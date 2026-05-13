@@ -7,10 +7,10 @@ This section explains the sequence of Git commands executed to satisfy the proje
 - **Pre-commit Hook Creation**: Created `.git/hooks/pre-commit` to reject any commits from authors whose email domain does not match `@gmail.com`.
 - **Branching Strategy (Replicating the Figure)**:
   - Branched `feature-a` and `feature-b` off the initial `main` commit.
-  - Added two commits to `feature-a` (Linked with Jira mock-ID `METHOD-1`, `METHOD-2`).
+  - Added two commits to `feature-a` (Linked with Jira Story `MET-17`).
   - Merged `feature-a` into `main` using **Explicit Merge (`--no-ff`)** to create a distinct bubble in the commit graph.
-  - Branched `feature-c` from `main`, added one commit (`METHOD-4`), and merged it back to `main` using **Explicit Merge (`--no-ff`)**.
-  - Added one commit to `feature-b` (`METHOD-6`).
+  - Branched `feature-c` from `main`, added one commit (`MET-18`), and merged it back to `main` using **Explicit Merge (`--no-ff`)**.
+  - Added one commit to `feature-b` (`MET-3`).
   - Merged `feature-b` into `main` using a **Standard 3-Way Recursive Merge**, satisfying the requirement of using at least two different merging techniques.
   - Created an annotated tag `0.1.0` on the final `main` branch.
 - **Remote Synchronization**: Pushed all branches (`main`, `feature-a`, `feature-b`, `feature-c`) and the `0.1.0` tag to the GitHub repository.
